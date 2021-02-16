@@ -33,6 +33,8 @@ enum PayloadId : uint8_t
     EchoSounder         = 0x06,
     MetalDetector       = 0x07,
 
+    SkyhubFlightController = 0x80,
+
     UserPayloadFirst    = 0xC0,
     UserPayloadLast     = 0xDF,
 
@@ -51,6 +53,8 @@ enum MessageId : uint8_t
     StatusId  = 0x00,   // Status with text
     ArrayId   = 0x01,   // Data array
     ValueId   = 0x02,   // Single value
+    TelemetryId = 0x03, // Telemetry message
+    EventId = 0x04,     // Event message
     CommandId = 0x80,   // Command to payload
 };
 
@@ -76,6 +80,7 @@ enum MonitorMessageId : uint16_t
     GasDetectorStatusMessageId = 0x09,
     EchoSounderStatusMessageId = 0x0A,
     FirmwareMessageId = 0x0B,
+    ObstacleAvoidanceStatusMessageId = 0x0C,
 
     TextMessageId = 0xFE,
     ResultMessageId = 0xFF,
@@ -95,6 +100,13 @@ enum MonitorMessageId : uint16_t
 
     // Firmware
     FirmwareAskedMessageId = 0x92,
+
+    ConfigureObstacleAvoidanceMessageId = 0x93,
+    ActivateObstacleAvoidanceMessageId = 0x94,
+    DeactivateObstacleAvoidanceMessageId = 0x95,
+    
+    StartGrasshopperMessageId = 0x96,
+    PauseGrasshopperMessageId = 0x97,
 
     FlatbuffersSendMessageId = 0xFA,
     FlatbuffersReceiveMessageId = 0xFB,

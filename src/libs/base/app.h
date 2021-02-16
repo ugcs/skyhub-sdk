@@ -174,6 +174,13 @@ enum FutureMissionAction : uint8_t {
     RequestPause = 2
 };
 
+enum SafetyAction : uint8_t {
+    NOTHING = 0,        // Do nothing, ignore such case
+    WARNING = 1,        // Warn in error log, so operator can manualy react
+    PAUSE_MISSION = 2,  // Pause auto mission if mission was running, warn operator
+    STOP_MISSION = 3    // Stop and cancel mission, warn operator.
+};
+
 struct GeoCoordinates
 {
     double latitude;
@@ -294,6 +301,7 @@ public:
 
     // Vehicle data
     REGISTER_TOPIC(altitude, ScalarSensorData)
+    REGISTER_TOPIC(altitudeAMSL, ScalarSensorData)
     REGISTER_TOPIC(rtkAltitude, ScalarSensorData)
     REGISTER_F32(roll)
     REGISTER_F32(pitch)
@@ -313,10 +321,13 @@ public:
     REGISTER_U8(ghMissionState)
     REGISTER_U8(ghAlgorithmState)
     REGISTER_U8(ttfRequestMissionAction)
+    REGISTER_U8(ghRequestMissionAction)
+    REGISTER_U8(oaRequestActivate)
+    REGISTER_U8(autoMissionState)
+    REGISTER_U8(oaAlgorithmState)
     // TODO: Legacy to write additional title in GPR SEG-Y log
     REGISTER_BOOL(isTerrainFollowingModeEnabled)
     REGISTER_INT(waypointIndex)
-    REGISTER_INT(dropWaypointIndex)
     REGISTER_F64(targetYaw)
     REGISTER_TOPIC(destination, GeoCoordinates)
     REGISTER_F64(nextPointHeight)
@@ -392,8 +403,6 @@ public:
     REGISTER_BOOL(MAV_V2_EXTENSION)
 
     // Terrain Following Settings
-    // TODO: depreciated TF_SENSOR_X_OFFSET/ TF_SENSOR_Y_OFFSET
-    // They were used to compensate the drone position during measurement of height
     REGISTER_F32(TF_FLIGHT_SPEED_MPS)
     REGISTER_F32(TF_FAIL_SAFE_ALTITUDE_M)
     REGISTER_F32(TF_TARGET_ALTITUDE_M)
@@ -405,19 +414,27 @@ public:
     REGISTER_STR(TF_ALTITUDE_SOURCE)
     REGISTER_BOOL(TF_DEBUG_LOG)
     REGISTER_F32(TF_ACCEPTANCE_RADIUS_M)
-
-    // Used to switch between attitude and position contol
-    REGISTER_BOOL(TF_VELOCITY_CONTROL)
     REGISTER_F32(TF_POS_P)
     REGISTER_F32(TF_ACCEL_XY)
     REGISTER_BOOL(TF_POS_CTRL_DEBUG_LOG)
+    REGISTER_BOOL(TF_VELOCITY_CONTROL)      // Used to switch between attitude and position contol
 
     // Grasshopper Setting
-    REGISTER_STR(GH_ALTITUDE_SOURCE)
-    REGISTER_F32(GH_VERTICAL_SPEED_MPS)
+    REGISTER_F32(GH_ALTITUDE_PRECISION_M)
+    REGISTER_F32(GH_DESCENT_SPEED_MPS)
+    REGISTER_F32(GH_DESCENT_ALTITUDE_M)
+    REGISTER_F32(GH_FLIGHT_SPEED_MPS)
     REGISTER_F32(GH_TARGET_ALTITUDE_M)
     REGISTER_INT(GH_HOVER_TIME_S)
+    REGISTER_F32(GH_CLIMB_RATE)
     REGISTER_BOOL(GH_DEBUG_LOG)
+    REGISTER_F32(GH_ACCEPTANCE_RADIUS_M)
+    REGISTER_F32(GH_ALT_ACCEL)
+    REGISTER_F32(GH_ALT_P)
+    REGISTER_STR(GH_ALTITUDE_SOURCE)
+    REGISTER_F32(GH_POS_P)
+    REGISTER_F32(GH_ACCEL_XY)
+    REGISTER_BOOL(GH_VELOCITY_CONTROL)      // Used to switch between attitude and position contol
 
     // Altimeter Simulator Settings
     REGISTER_INT(ALTIMETER_SIMULATOR_PERIOD_MS)
@@ -535,6 +552,14 @@ public:
     // Unstable features (add below)
     // Example: REGISTER_BOOL(UNSTABLE_MY_FEATURE)
     REGISTER_BOOL(UNSTABLE_FLATBUFFERS_MESSAGE)
+    REGISTER_BOOL(UNSTABLE_ALGORITHM_OBSTACLE_AVOIDANCE)
+
+    // Obstacle Avoidance Mode
+    REGISTER_STR(OA_ALTITUDE_SOURCE)
+    REGISTER_F32(OA_ALTITUDE_LIMIT_M)
+    REGISTER_STR(OA_SAFETY_ACTION)
+    REGISTER_BOOL(OA_AUTOSTART_ENABLE)
+    REGISTER_F32(OA_AUTOSTART_ALT_OFFSET)
 
 private:
     QSettings *settings();

@@ -197,10 +197,13 @@ struct SimpleCommandHeader {
 };
 
 struct GrasshopperHeader {
-    float targetAltitude;
-    float verticalSpeed;
+    float descentAltitude;
+    float descentSpeed;
     int hoverTime;
     AlgorithmState state;
+    MissionState missionState;
+    float targetAltitude;
+    float speed; // missionVelocity
 
     friend QDataStream &operator <<(QDataStream &stream, const GrasshopperHeader &data);
     friend QDataStream &operator >>(QDataStream &stream, GrasshopperHeader &data);
@@ -215,10 +218,22 @@ struct ConfigureTerrainFollowingHeader {
     friend QDataStream &operator >>(QDataStream &stream, ConfigureTerrainFollowingHeader &data);
 };
 
+
+struct ObstacleAvoidanceHeader {
+    float altitude;
+    uint8_t safeAction;
+    AlgorithmState state;
+
+    friend QDataStream &operator <<(QDataStream &stream, const ObstacleAvoidanceHeader &data);
+    friend QDataStream &operator >>(QDataStream &stream, ObstacleAvoidanceHeader &data);
+};
+
+
 typedef Message<SimpleCommandHeader> GprControlPayload;
-typedef Message<GrasshopperHeader> ConfigureGrasshopper;
+typedef Message<GrasshopperHeader> ConfigureGrasshopperPayload;
 typedef Message<SimpleCommandHeader> PowerControlPayload;
 typedef Message<ConfigureTerrainFollowingHeader> ConfigureTerrainFollowingPayload;
+typedef Message<ObstacleAvoidanceHeader> ConfigureObstacleAvoidancePayload;
 
 // ----------------------
 // Settings exchange between SkyHub and CPM

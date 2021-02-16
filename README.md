@@ -1,4 +1,4 @@
-# SkyHub SDK v2.8.0
+# SkyHub SDK v2.9.0
 
 [![Build Status](https://github.com/ugcs/skyhub-sdk/workflows/Build/badge.svg)](https://github.com/ugcs/skyhub-sdk/actions?query=workflow%3ABuild)
 [![Publish Status](https://github.com/ugcs/skyhub-sdk/workflows/Publish/badge.svg)](https://github.com/ugcs/skyhub-sdk/actions?query=workflow%3APublish)
@@ -11,7 +11,7 @@ The SDK consists of source code required to add a custom payload plugin to the S
 
 * Latest UgCS v3: https://www.ugcs.com/download
 * Latest UgCS-CPM v3: https://industrial.ugcs.com/dl/s/ugcs-cpm-windows
-* SkyHub firmware v2.8.0: https://industrial.ugcs.com/dl/release/skyhub-armhf-2.8.0.1443.tar.gz
+* SkyHub firmware v2.9.0: https://industrial.ugcs.com/dl/release/skyhub-armhf-2.9.0.1562.tar.gz
 * Host PC with Ubuntu OS (Ubuntu 20.04 is recommended) or Windows Subsystem for Linux (WSL) with pre-installed Docker software
 
 # Building

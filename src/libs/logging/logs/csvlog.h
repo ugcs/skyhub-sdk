@@ -25,14 +25,29 @@
 
 #include <typeinfo>
 
+namespace CsvLogConstants {
+
+const int FloatPrecision = 2;
+const int DoublePrecision = 6;
+
+}
+
 class CsvLog : public LogFile, public Logged
 {
     Q_OBJECT
 public:
+    enum ParameterType : uint8_t {
+        CONSTANT = 0,   // Constant values are written for each request of write(), writeGroup(...)
+        OPTIONAL = 1    // Optional values are written only by request of writeGroup(...)
+    };
+
     CsvLog(char separator = ',', QObject *parent = nullptr);
 
-    void addParameter(const QString &name, const QString &group = "");
-    void addParameters(const QStringList &names, const QString &group = "");
+    void addParameter(const QString &name, const QString &group = "") { addParameter(CONSTANT, name, group); }
+    void addParameters(const QStringList &names, const QString &group = "") { addParameters(CONSTANT, names, group); }
+
+    void addParameter(ParameterType paramType, const QString &name, const QString &group = "");
+    void addParameters(ParameterType paramType, const QStringList &names, const QString &group = "");
 
     void setValue(QString name, QString value, QString group = "");
 
@@ -40,7 +55,8 @@ public:
     void setValue(const QString &name, T value, const QString &group = "",
                   typename std::enable_if<std::is_floating_point<T>::value >::type* = 0)
     {
-        setValue(name, QString().setNum(value, 'f', typeid(float) == typeid(value) ? FloatPrecision : DoublePrecision), group);
+        setValue(name, QString().setNum(value, 'f', typeid(float) == typeid(value) ? CsvLogConstants::FloatPrecision
+                                                                                   : CsvLogConstants::DoublePrecision), group);
     }
 
     template<class T>
@@ -57,14 +73,33 @@ public:
     }
 
     void close() override;
+    void clearValue(const QString &name, const QString &group = "") { m_values.remove(paramId(name, group)); }
+
+    /**
+     * @brief write
+     * Set and write parameters passed into the method with constant parameters (time, geo coordinates, roll, pitch, yaw, etc).
+     * Other columns write empty
+     * @param params
+     * @param group
+     */
+    void writeGroup(const QHash<QString, QString> &params, const QString &group = "");
 
 public slots:
+    /**
+     * @brief write
+     * Write constant parameters (time, geo coordinates, roll, pitch, yaw, etc)
+     */
     void write();
+    /**
+     * @brief write
+     * Set parameters and write constant parameters (time, geo coordinates, roll, pitch, yaw, etc).
+     * @param params
+     * @param group
+     */
     void write(const QHash<QString, QString> &params, const QString &group = ""); // TODO: not used
 
 protected:
     QString suffix() const override { return ".csv"; }
-    void clearValue(const QString &name, const QString &group = "") { m_values.remove(paramId(name, group)); }
 
 private:
     struct Parameter {
@@ -73,6 +108,7 @@ private:
 
         QString name;
         bool isNew = false;
+        bool isConstant = true;
 
         bool operator== (const Parameter &other)
         {
@@ -80,18 +116,16 @@ private:
         }
     };
 
-    bool addParameterToHeader(const QString &name, const QString &group);
+    bool addParameterToHeader(const QString &name, const QString &group, ParameterType paramType);
     void writeHeader();
     QString paramId(const QString &name, const QString &group) { return group + ":" + name; }
+    void write(QStringList values);
 
 private:
     char m_separator;
 
     QMap<QString, QList<Parameter>> m_parameters;
     QHash<QString, QString> m_values;
-
-    const int FloatPrecision = 2;
-    const int DoublePrecision = 6;
 
     QMutex m_mutex;
 };
